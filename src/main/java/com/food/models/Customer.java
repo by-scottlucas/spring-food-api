@@ -5,6 +5,7 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
@@ -17,14 +18,19 @@ public class Customer {
     private Long id;
 
     @NotNull
-    @Size(min = 2, max = 80, message = "O nome deve ter no mínimo {min} caracteres")
+    @NotBlank(message = "O nome é obrigatório")
+    @Size(max = 80, message = "O nome deve ter no máximo {max} caracteres")
     private String name;
 
     @NotNull
-    @Size(min = 2, max = 300, message = "O endereço deve ter no mínimo {min} caracteres")
+    @NotBlank(message = "O endereço é obrigatório")
+    @Size(max = 300, message = "O endereço deve ter no máximo {max} caracteres")
     private String address;
 
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<Order> orders;
+
+    @Column(nullable = false)
+    private Boolean active = true;    
 }

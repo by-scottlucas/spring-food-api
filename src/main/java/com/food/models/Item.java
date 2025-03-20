@@ -1,9 +1,11 @@
 package com.food.models;
 
-import jakarta.persistence.*;
-import jakarta.validation.constraints.DecimalMin;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Data
@@ -14,10 +16,9 @@ public class Item {
     private Long id;
 
     @NotNull
-    @Size(min = 2, max = 30, message = "O nome deve ter no mínimo {min} caracteres")
+    @NotBlank(message = "O nome é obrigatório")
     private String name;
 
-    @NotNull
-    @DecimalMin(value = "20.00", message = "O valor mínimo deve ser {value} reais")
+    @NotNull(message = "O preço é obrigatório")
     private Double price;
 }
