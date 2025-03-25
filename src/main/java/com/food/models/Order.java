@@ -21,7 +21,6 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
@@ -56,9 +55,8 @@ public class Order {
         }
     }
 
-    @NotNull
     @DecimalMin(value = "0.01", message = "O valor total deve ser pelo menos {value}")
-    private Double totalValue;
+    private Double totalValue = 0.01;    
 
     private String status;
 }

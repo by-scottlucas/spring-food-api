@@ -4,8 +4,13 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
@@ -17,13 +22,11 @@ public class Customer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull
-    @NotBlank(message = "O nome é obrigatório")
+    @NotNull(message = "O nome é obrigatório")
     @Size(max = 80, message = "O nome deve ter no máximo {max} caracteres")
     private String name;
 
-    @NotNull
-    @NotBlank(message = "O endereço é obrigatório")
+    @NotNull(message = "O endereço é obrigatório")
     @Size(max = 300, message = "O endereço deve ter no máximo {max} caracteres")
     private String address;
 
