@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.food.enums.OrderStatus;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
@@ -58,5 +59,5 @@ public class Order {
     @DecimalMin(value = "0.01", message = "O valor total deve ser pelo menos {value}")
     private Double totalValue = 0.01;    
 
-    private String status;
+    private OrderStatus status;
 }

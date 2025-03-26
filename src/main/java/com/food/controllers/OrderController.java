@@ -4,12 +4,10 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
@@ -25,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.food.enums.OrderStatus;
 import com.food.exceptions.NotFoundException;
 import com.food.models.Item;
 import com.food.models.Order;
@@ -59,6 +58,28 @@ public class OrderController {
                         .withSelfRel());
     }
 
+    @GetMapping("/customer/{customerId}")
+    @ResponseStatus(code = HttpStatus.OK)
+    public CollectionModel<EntityModel<Order>> getOrderByCustomer(@PathVariable Long customerId) {
+        // Buscar os pedidos do cliente
+        List<Order> orders = orderRepository.findByCustomerId(customerId);
+
+        // Verificar se há pedidos para o cliente
+        if (orders.isEmpty()) {
+            throw new NotFoundException("Nenhum pedido encontrado para o cliente com ID " + customerId);
+        }
+
+        // Mapear os pedidos para EntityModel e incluir links HATEOAS
+        List<EntityModel<Order>> orderModels = orders.stream()
+                .map(order -> EntityModel.of(order,
+                        linkTo(methodOn(OrderController.class).getOrder(order.getId())).withSelfRel(),
+                        linkTo(methodOn(OrderController.class).listOrders()).withRel("orders")))
+                .toList();
+
+        return CollectionModel.of(orderModels,
+                linkTo(methodOn(OrderController.class).getOrderByCustomer(customerId)).withSelfRel());
+    }
+
     @GetMapping("/{id}")
     @ResponseStatus(code = HttpStatus.OK)
     public EntityModel<Order> getOrder(@PathVariable Long id) {
@@ -86,58 +107,12 @@ public class OrderController {
         }
 
         data.setItems(items);
+        data.setStatus(OrderStatus.PENDING);
         recalculateTotal(data);
         Order savedOrder = orderRepository.save(data);
 
         return EntityModel.of(savedOrder,
                 linkTo(methodOn(OrderController.class).getOrder(savedOrder.getId())).withSelfRel(),
-                linkTo(methodOn(OrderController.class).listOrders()).withRel("orders"));
-    }
-
-    @GetMapping("/customer/{customerId}")
-    @ResponseStatus(code = HttpStatus.OK)
-    public List<Order> listOrdersByCustomer(@PathVariable Long customerId) {
-        return orderRepository.findByCustomerId(customerId);
-    }
-
-    @GetMapping("/date/{date}")
-    @ResponseStatus(code = HttpStatus.OK)
-    public List<Order> listOrdersByDate(@PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd") Date date) {
-        return orderRepository.findByDate(date);
-    }
-
-    @PatchMapping("/{id}")
-    @Transactional
-    @ResponseStatus(code = HttpStatus.CREATED)
-    public EntityModel<Order> updateOrder(@PathVariable Long id, @RequestBody Order data) {
-        Order updatedOrder = orderRepository.findById(id).map(order -> {
-            if (data.getCustomer() != null) {
-                order.setCustomer(data.getCustomer());
-            }
-
-            if (data.getItems() != null && !data.getItems().isEmpty()) {
-                List<Item> items = new ArrayList<>();
-                for (Item item : data.getItems()) {
-                    Item foundItem = itemRepository
-                            .findById(item.getId())
-                            .orElseThrow(() -> new NotFoundException(
-                                    "Item com ID " + item.getId() + " não encontrado"));
-                    items.add(foundItem);
-                }
-                order.setItems(items);
-                recalculateTotal(order);
-            }
-
-            if (data.getDate() != null) {
-                order.setDate(data.getDate());
-            }
-
-            return orderRepository.save(order);
-
-        }).orElseThrow(() -> new NotFoundException("Pedido não encontrado."));
-
-        return EntityModel.of(updatedOrder,
-                linkTo(methodOn(OrderController.class).getOrder(id)).withSelfRel(),
                 linkTo(methodOn(OrderController.class).listOrders()).withRel("orders"));
     }
 
@@ -148,7 +123,7 @@ public class OrderController {
         Order order = orderRepository
                 .findById(id)
                 .orElseThrow(() -> new NotFoundException("Pedido não encontrado."));
-        order.setStatus("CANCELLED");
+        order.setStatus(OrderStatus.CANCELLED);
         orderRepository.save(order);
 
         return ResponseEntity.noContent().build();

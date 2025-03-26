@@ -1,0 +1,27 @@
+package com.food.models.dtos;
+
+import java.util.Date;
+import java.util.List;
+
+import com.food.enums.OrderStatus;
+import com.food.models.Item;
+import lombok.Data;
+
+@Data
+public class OrderDetailDTO {
+    private Long id;
+    private List<Item> items;
+    private Date date;
+    private Double totalValue;
+    private OrderStatus status;
+    private CustomerDTO customer;
+
+    public OrderDetailDTO(Long id, List<Item> items, Date date, Double totalValue, OrderStatus status, CustomerDTO customer) {
+        this.id = id;
+        this.items = items;
+        this.date = date;
+        this.totalValue = totalValue;
+        this.status = status;
+        this.customer = customer;
+    }
+}
