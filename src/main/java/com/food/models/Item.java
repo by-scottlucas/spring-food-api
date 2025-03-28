@@ -1,5 +1,6 @@
 package com.food.models;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -21,4 +22,8 @@ public class Item {
 
     @NotNull(message = "O preço é obrigatório")
     private Double price;
+
+    @NotNull
+    @Column(nullable = false)
+    private int quantity = 1;
 }

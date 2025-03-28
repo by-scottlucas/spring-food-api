@@ -7,6 +7,8 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.food.enums.OrderStatus;
+import com.food.enums.PaymentMethod;
+import com.food.enums.PaymentStatus;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
@@ -38,11 +40,7 @@ public class Order {
     private Customer customer;
 
     @ManyToMany(cascade = CascadeType.MERGE)
-    @JoinTable(
-        name = "order_items",
-        joinColumns = @JoinColumn(name = "order_id"),
-        inverseJoinColumns = @JoinColumn(name = "item_id")
-    )
+    @JoinTable(name = "order_items", joinColumns = @JoinColumn(name = "order_id"), inverseJoinColumns = @JoinColumn(name = "item_id"))
     private List<Item> items;
 
     @Temporal(TemporalType.DATE)
@@ -57,7 +55,10 @@ public class Order {
     }
 
     @DecimalMin(value = "0.01", message = "O valor total deve ser pelo menos {value}")
-    private Double totalValue = 0.01;    
+    private Double totalValue = 0.01;
 
     private OrderStatus status;
+    private PaymentMethod paymentMethod;
+    private PaymentStatus paymentStatus;
+
 }

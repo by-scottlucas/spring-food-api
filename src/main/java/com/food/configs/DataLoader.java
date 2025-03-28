@@ -9,6 +9,8 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 import com.food.enums.OrderStatus;
+import com.food.enums.PaymentMethod;
+import com.food.enums.PaymentStatus;
 import com.food.models.Customer;
 import com.food.models.Item;
 import com.food.models.Order;
@@ -28,6 +30,7 @@ public class DataLoader implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
+        // Criando e salvando clientes
         Customer customer1 = new Customer();
         customer1.setName("Lucas Santos");
         customer1.setAddress("Rua A, 123");
@@ -47,14 +50,17 @@ public class DataLoader implements CommandLineRunner {
         Item item1 = new Item();
         item1.setName("Pizza de Calabresa");
         item1.setPrice(50.00);
+        item1.setQuantity(1);
 
         Item item2 = new Item();
         item2.setName("Hambúrguer Duplo");
         item2.setPrice(30.00);
+        item2.setQuantity(1);
 
         Item item3 = new Item();
         item3.setName("Suco de Laranja");
         item3.setPrice(20.00);
+        item3.setQuantity(1);
 
         itemRepository.saveAll(Arrays.asList(item1, item2, item3));
         
@@ -68,7 +74,9 @@ public class DataLoader implements CommandLineRunner {
                 .collect(Collectors.toList()));
         order1.setDate(new Date());
         order1.setTotalValue(70.00);
-        order1.setStatus(OrderStatus.PENDING);
+        order1.setStatus(OrderStatus.COMPLETED);
+        order1.setPaymentStatus(PaymentStatus.PAID);
+        order1.setPaymentMethod(PaymentMethod.CREDIT_CARD);
 
         Order order2 = new Order();
         order2.setCustomer(customer2);
@@ -78,9 +86,12 @@ public class DataLoader implements CommandLineRunner {
                 .collect(Collectors.toList()));
         order2.setDate(new Date());
         order2.setTotalValue(50.00);
-        order2.setStatus(OrderStatus.PENDING);
+        order2.setStatus(OrderStatus.COMPLETED);
+        order2.setPaymentStatus(PaymentStatus.PAID);
+        order2.setPaymentMethod(PaymentMethod.PIX);
 
         orderRepository.saveAll(Arrays.asList(order1, order2));
+
         System.out.println("Carga inicial adicionada com sucesso!");
     }
 }
