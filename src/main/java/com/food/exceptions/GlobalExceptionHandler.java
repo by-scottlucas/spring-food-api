@@ -19,10 +19,18 @@ public class GlobalExceptionHandler {
         Map<String, String> errors = new HashMap<>();
         
         for (FieldError error : ex.getBindingResult().getFieldErrors()) {
-            errors.put(error.getField(), "Erro no campo '" + error.getField() + "': " + error.getDefaultMessage());
+            errors.put(error.getField(), error.getDefaultMessage());
         }
 
         return errors;
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Map<String, String> handleIllegalArgumentException(IllegalArgumentException ex) {
+        Map<String, String> error = new HashMap<>();
+        error.put("erro", ex.getMessage());
+        return error;
     }
 
     @ExceptionHandler(NotFoundException.class)

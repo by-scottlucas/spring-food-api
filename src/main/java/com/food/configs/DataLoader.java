@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
+import com.food.enums.OrderStatus;
 import com.food.models.Customer;
 import com.food.models.Item;
 import com.food.models.Order;
@@ -30,12 +31,18 @@ public class DataLoader implements CommandLineRunner {
         Customer customer1 = new Customer();
         customer1.setName("Lucas Santos");
         customer1.setAddress("Rua A, 123");
+        customer1.setActive(true);
 
         Customer customer2 = new Customer();
         customer2.setName("Mariana Silva");
         customer2.setAddress("Rua B, 456");
+        customer2.setActive(true);
 
         customerRepository.saveAll(Arrays.asList(customer1, customer2));
+        
+        List<Customer> customers = customerRepository.findAll();
+        customer1 = customers.get(0);
+        customer2 = customers.get(1);
 
         Item item1 = new Item();
         item1.setName("Pizza de Calabresa");
@@ -50,32 +57,30 @@ public class DataLoader implements CommandLineRunner {
         item3.setPrice(20.00);
 
         itemRepository.saveAll(Arrays.asList(item1, item2, item3));
-
-        List<Long> itemIds = Arrays.asList(item1.getId(), item2.getId(), item3.getId());
-        List<Item> managedItems = itemRepository.findAllById(itemIds);
+        
+        List<Item> managedItems = itemRepository.findAll();
 
         Order order1 = new Order();
         order1.setCustomer(customer1);
         order1.setItems(managedItems.stream()
-                .filter(item -> item.getId().equals(item1.getId()) ||
-                        item.getId().equals(item3.getId()))
+                .filter(item -> item.getName().equals("Pizza de Calabresa") || 
+                                item.getName().equals("Suco de Laranja"))
                 .collect(Collectors.toList()));
         order1.setDate(new Date());
         order1.setTotalValue(70.00);
+        order1.setStatus(OrderStatus.PENDING);
 
         Order order2 = new Order();
         order2.setCustomer(customer2);
-        order2.setItems(
-                managedItems
-                        .stream()
-                        .filter(item -> item.getId().equals(item2.getId()) ||
-                                item.getId().equals(item3.getId()))
-                        .collect(Collectors.toList()));
+        order2.setItems(managedItems.stream()
+                .filter(item -> item.getName().equals("Hambúrguer Duplo") || 
+                                item.getName().equals("Suco de Laranja"))
+                .collect(Collectors.toList()));
         order2.setDate(new Date());
         order2.setTotalValue(50.00);
+        order2.setStatus(OrderStatus.PENDING);
 
         orderRepository.saveAll(Arrays.asList(order1, order2));
-
         System.out.println("Carga inicial adicionada com sucesso!");
     }
 }

@@ -21,40 +21,35 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.food.exceptions.NotFoundException;
 import com.food.models.Customer;
-import com.food.repositories.CustomerRepository;
+import com.food.services.CustomerService;
 
 import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/v1/customers")
 public class CustomerController {
-    private final CustomerRepository customerRepository;
+    private final CustomerService customerService;
 
-    public CustomerController(CustomerRepository customerRepository) {
-        this.customerRepository = customerRepository;
+    public CustomerController(CustomerService customerService) {
+        this.customerService = customerService;
     }
 
-    @GetMapping()
+    @GetMapping
     @ResponseStatus(code = HttpStatus.OK)
     public CollectionModel<EntityModel<Customer>> listCustomers() {
-        List<EntityModel<Customer>> customers = customerRepository
-                .findAll().stream().map(customer -> EntityModel.of(customer,
-                        linkTo(methodOn(CustomerController.class).getCustomer(customer.getId())).withSelfRel(),
-                        linkTo(methodOn(CustomerController.class).listCustomers()).withRel("customers")))
+        List<EntityModel<Customer>> customers = this.customerService
+                .listCustomers().stream().map(customer -> EntityModel.of(customer,
+                        linkTo(methodOn(CustomerController.class).getCustomer(customer.getId())).withSelfRel()))
                 .toList();
 
         return CollectionModel.of(customers,
-                linkTo(methodOn(CustomerController.class)
-                        .listCustomers())
-                        .withSelfRel());
+                linkTo(CustomerController.class).slash("api/v1/customers").withSelfRel());
     }
 
     @GetMapping("/{id}")
     @ResponseStatus(code = HttpStatus.OK)
     public EntityModel<Customer> getCustomer(@PathVariable() Long id) throws NotFoundException {
-        Customer customer = customerRepository
-                .findById(id)
-                .orElseThrow(() -> new NotFoundException("Cliente não encontrado."));
+        Customer customer = this.customerService.getCustomer(id);
 
         return EntityModel.of(customer,
                 linkTo(methodOn(CustomerController.class).getCustomer(id)).withSelfRel(),
@@ -67,7 +62,7 @@ public class CustomerController {
     @PostMapping()
     @ResponseStatus(code = HttpStatus.CREATED)
     public EntityModel<Customer> createCustomer(@Valid @RequestBody Customer data) {
-        Customer savedCustomer = customerRepository.save(data);
+        Customer savedCustomer = this.customerService.createCustomer(data);
 
         return EntityModel.of(savedCustomer,
                 linkTo(methodOn(CustomerController.class).getCustomer(savedCustomer.getId())).withSelfRel(),
@@ -77,51 +72,37 @@ public class CustomerController {
     @PatchMapping("/{id}")
     @ResponseStatus(code = HttpStatus.CREATED)
     public EntityModel<Customer> updateCustomer(@PathVariable Long id, @Valid @RequestBody Customer data) {
-        return customerRepository.findById(id).map(customer -> {
-            if (data.getName() != null) {
-                customer.setName(data.getName());
-            }
-            if (data.getAddress() != null) {
-                customer.setAddress(data.getAddress());
-            }
+        Customer updatedCustomer = this.customerService.updateCustomer(id, data);
 
-            Customer updatedCustomer = customerRepository.save(customer);
-
-            return EntityModel.of(updatedCustomer,
-                    linkTo(methodOn(CustomerController.class).getCustomer(updatedCustomer.getId())).withSelfRel(),
-                    linkTo(methodOn(CustomerController.class).listCustomers()).withRel("customers"),
-                    linkTo(methodOn(CustomerController.class).updateCustomer(updatedCustomer.getId(), updatedCustomer)).withRel("update"),
-                    linkTo(methodOn(CustomerController.class).deactivateCustomer(updatedCustomer.getId())).withRel("deactivate"),
-                    linkTo(methodOn(CustomerController.class).deleteCustomer(updatedCustomer.getId())).withRel("delete"));
-        }).orElseThrow(() -> new NotFoundException("Cliente não encontrado"));
+        return EntityModel.of(updatedCustomer,
+                linkTo(methodOn(CustomerController.class).getCustomer(updatedCustomer.getId())).withSelfRel(),
+                linkTo(methodOn(CustomerController.class).listCustomers()).withRel("customers"),
+                linkTo(methodOn(CustomerController.class).updateCustomer(updatedCustomer.getId(), updatedCustomer))
+                        .withRel("update"),
+                linkTo(methodOn(CustomerController.class).deactivateCustomer(updatedCustomer.getId()))
+                        .withRel("deactivate"),
+                linkTo(methodOn(CustomerController.class).deleteCustomer(updatedCustomer.getId())).withRel("delete"));
     }
 
     @PatchMapping("/{id}/deactivate")
     @ResponseStatus(code = HttpStatus.NO_CONTENT)
     public EntityModel<Customer> deactivateCustomer(@PathVariable Long id) {
-        return customerRepository.findById(id)
-                .map(customer -> {
-                    customer.setActive(false);
-                    Customer updatedCustomer = customerRepository.save(customer);
-                    return EntityModel.of(updatedCustomer,
-                            linkTo(methodOn(CustomerController.class).getCustomer(updatedCustomer.getId())).withSelfRel(),
-                            linkTo(methodOn(CustomerController.class).listCustomers()).withRel("customers"),
-                            linkTo(methodOn(CustomerController.class).updateCustomer(updatedCustomer.getId(), updatedCustomer)).withRel("update"),
-                            linkTo(methodOn(CustomerController.class).deactivateCustomer(updatedCustomer.getId())).withRel("deactivate"),
-                            linkTo(methodOn(CustomerController.class).deleteCustomer(updatedCustomer.getId())).withRel("delete"));
-                })
-                .orElseThrow(() -> new NotFoundException("Cliente não encontrado"));
+        Customer updatedCustomer = this.customerService.deactivateCustomer(id);
+
+        return EntityModel.of(updatedCustomer,
+                linkTo(methodOn(CustomerController.class).getCustomer(updatedCustomer.getId())).withSelfRel(),
+                linkTo(methodOn(CustomerController.class).listCustomers()).withRel("customers"),
+                linkTo(methodOn(CustomerController.class).updateCustomer(updatedCustomer.getId(), updatedCustomer))
+                        .withRel("update"),
+                linkTo(methodOn(CustomerController.class).deactivateCustomer(updatedCustomer.getId()))
+                        .withRel("deactivate"),
+                linkTo(methodOn(CustomerController.class).deleteCustomer(updatedCustomer.getId())).withRel("delete"));
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(code = HttpStatus.NO_CONTENT)
     public ResponseEntity<Void> deleteCustomer(@PathVariable() Long id) {
-        Customer customer = customerRepository
-                .findById(id)
-                .orElseThrow(() -> new NotFoundException("Cliente não encontrado"));
-
-        customerRepository.delete(customer);
-
+        this.customerService.deleteCustomer(id);
         return ResponseEntity.noContent().build();
     }
 }
