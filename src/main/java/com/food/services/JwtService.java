@@ -12,8 +12,8 @@ import java.util.Date;
 
 @Service
 public class JwtService {
-    private static final String SECRET_KEY_STRING = "0MkqybDdryGB03QAVCrEQNq7OiGkDb7H4zLGAjZlE9c";
-    private final SecretKey SECRET_KEY = Keys.hmacShaKeyFor(SECRET_KEY_STRING.getBytes());
+    public static final String SECRET_KEY_STRING = "0MkqybDdryGB03QAVCrEQNq7OiGkDb7H4zLGAjZlE9c";
+    public final SecretKey SECRET_KEY = Keys.hmacShaKeyFor(SECRET_KEY_STRING.getBytes());
 
     public String generateToken(String username) {
         Date now = new Date();
