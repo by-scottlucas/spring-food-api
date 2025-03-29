@@ -25,6 +25,12 @@ public class Customer {
     @NotNull(message = "O nome é obrigatório")
     @Size(max = 80, message = "O nome deve ter no máximo {max} caracteres")
     private String name;
+
+    @Column
+    private String email;
+
+    @Column
+    private String password;
     
     @Size(max = 300, message = "O endereço deve ter no máximo {max} caracteres")
     private String address;

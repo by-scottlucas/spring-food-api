@@ -2,6 +2,7 @@ package com.food.services;
 
 import java.util.List;
 
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.food.exceptions.NotFoundException;
@@ -11,9 +12,14 @@ import com.food.repositories.CustomerRepository;
 @Service
 public class CustomerService {
     private final CustomerRepository customerRepository;
+    private final BCryptPasswordEncoder passwordEncoder;
 
-    public CustomerService(CustomerRepository customerRepository) {
+    public CustomerService(
+        CustomerRepository customerRepository,
+        BCryptPasswordEncoder passwordEncoder
+    ) {
         this.customerRepository = customerRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public List<Customer> listCustomers() {
@@ -27,10 +33,8 @@ public class CustomerService {
     }
 
     public Customer createCustomer(Customer data) {
-        if (data.getAddress() == null || data.getAddress().isEmpty()) {
-            throw new IllegalArgumentException("O endereço é obrigatório");
-        }
-
+        String encodedPassword = passwordEncoder.encode(data.getPassword());
+        data.setPassword(encodedPassword);
         return this.customerRepository.save(data);
     }
 
@@ -38,9 +42,8 @@ public class CustomerService {
         return this.customerRepository
                 .findById(id)
                 .map(response -> {
-                    if (data.getName() != null) {
-                        response.setName(data.getName());
-                    }
+                    response.setName(data.getName());
+                    response.setEmail(data.getEmail());
 
                     if (data.getAddress() != null && !data.getAddress().isEmpty()) {
                         response.setAddress(data.getAddress());
@@ -48,6 +51,11 @@ public class CustomerService {
 
                     if (data.getActive() != null) {
                         response.setActive(data.getActive());
+                    }
+
+                    if (data.getPassword() != null && !data.getPassword().isEmpty()) {
+                        String encodedPassword = passwordEncoder.encode(data.getPassword());
+                        response.setPassword(encodedPassword);
                     }
 
                     return this.customerRepository.save(response);

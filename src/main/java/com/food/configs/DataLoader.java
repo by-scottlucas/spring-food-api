@@ -30,14 +30,17 @@ public class DataLoader implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        // Criando e salvando clientes
         Customer customer1 = new Customer();
         customer1.setName("Lucas Santos");
+        customer1.setEmail("lucas.santos@example.com");
+        customer1.setPassword("senha123");
         customer1.setAddress("Rua A, 123");
         customer1.setActive(true);
 
         Customer customer2 = new Customer();
         customer2.setName("Mariana Silva");
+        customer2.setEmail("mariana.silva@example.com");
+        customer2.setPassword("senha456"); 
         customer2.setAddress("Rua B, 456");
         customer2.setActive(true);
 
