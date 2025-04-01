@@ -1,4 +1,4 @@
-package com.food.services;
+package com.food.unit.services;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -12,6 +12,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import com.food.services.JwtService;
 
 @ExtendWith(MockitoExtension.class)
 class JwtServiceTest {

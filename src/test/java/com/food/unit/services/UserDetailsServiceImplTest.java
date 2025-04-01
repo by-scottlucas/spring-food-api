@@ -1,4 +1,4 @@
-package com.food.services;
+package com.food.unit.services;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -16,6 +16,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import com.food.models.Customer;
 import com.food.repositories.CustomerRepository;
+import com.food.services.UserDetailsServiceImpl;
+import com.food.utils.CustomerData;
 
 @ExtendWith(MockitoExtension.class)
 class UserDetailsServiceImplTest {
@@ -31,25 +33,25 @@ class UserDetailsServiceImplTest {
     @BeforeEach
     void setUp() {
         customer = new Customer();
-        customer.setEmail("test@example.com");
-        customer.setPassword("password123");
+        customer.setEmail(CustomerData.EMAIL);
+        customer.setPassword(CustomerData.PASSWORD);
     }
 
     @Test
     void testLoadUserByUsername_UserFound() {
-        when(customerRepository.findByEmail("test@example.com")).thenReturn(java.util.Optional.of(customer));
+        when(customerRepository.findByEmail(CustomerData.EMAIL)).thenReturn(java.util.Optional.of(customer));
 
-        UserDetails userDetails = userDetailsService.loadUserByUsername("test@example.com");
+        UserDetails userDetails = userDetailsService.loadUserByUsername(CustomerData.EMAIL);
 
         assertNotNull(userDetails);
-        assertEquals("test@example.com", userDetails.getUsername());
-        assertEquals("password123", userDetails.getPassword());
+        assertEquals(CustomerData.EMAIL, userDetails.getUsername());
+        assertEquals(CustomerData.PASSWORD, userDetails.getPassword());
     }
 
     @Test
     void testLoadUserByUsername_UserNotFound() {
-        when(customerRepository.findByEmail("test@example.com")).thenReturn(java.util.Optional.empty());
+        when(customerRepository.findByEmail(CustomerData.EMAIL)).thenReturn(java.util.Optional.empty());
 
-        assertThrows(UsernameNotFoundException.class, () -> userDetailsService.loadUserByUsername("test@example.com"));
+        assertThrows(UsernameNotFoundException.class, () -> userDetailsService.loadUserByUsername(CustomerData.EMAIL));
     }
 }
