@@ -31,6 +31,7 @@ import com.food.exceptions.NotFoundException;
 import com.food.models.Customer;
 import com.food.services.CustomerService;
 import com.food.services.JwtService;
+import com.food.utils.AuthData;
 import com.food.utils.CustomerData;
 
 @SpringBootTest
@@ -66,15 +67,15 @@ public class CustomerControllerIT {
         mockCustomer.setAddress(CustomerData.ADDRESS);
         mockCustomer.setActive(CustomerData.ACTIVE);
 
-        mockToken = "Bearer mock-token";
-        when(jwtService.validateToken("mock-token")).thenReturn(CustomerData.EMAIL);
+        mockToken = "Bearer " + AuthData.TOKEN;
+        when(jwtService.validateToken(AuthData.TOKEN)).thenReturn(AuthData.EMAIL);
 
-        mockUserDetails = User.withUsername(CustomerData.EMAIL)
-                .password(CustomerData.HASHED_PASSWORD)
+        mockUserDetails = User.withUsername(AuthData.EMAIL)
+                .password(AuthData.HASHED_PASSWORD)
                 .roles("USER")
                 .build();
 
-        when(userDetailsService.loadUserByUsername(CustomerData.EMAIL)).thenReturn(mockUserDetails);
+        when(userDetailsService.loadUserByUsername(AuthData.EMAIL)).thenReturn(mockUserDetails);
     }
 
     @Test
