@@ -70,6 +70,16 @@ public class OrderControllerIT {
 
     @BeforeEach
     void setUp() {
+        mockToken = "Bearer " + AuthData.TOKEN;
+        when(jwtService.validateToken(AuthData.TOKEN)).thenReturn(AuthData.EMAIL);
+
+        mockUserDetails = User.withUsername(AuthData.EMAIL)
+                .password(AuthData.HASHED_PASSWORD)
+                .roles("USER")
+                .build();
+
+        when(userDetailsService.loadUserByUsername(AuthData.EMAIL)).thenReturn(mockUserDetails);
+
         mockCustomer = new Customer();
         mockCustomer.setId(CustomerData.ID);
         mockCustomer.setName(CustomerData.NAME);
@@ -87,16 +97,6 @@ public class OrderControllerIT {
         mockOrder.setPaymentMethod(OrderData.PAYMENT_METHOD);
         mockOrder.setPaymentStatus(OrderData.PAYMENT_STATUS);
         mockOrder.setTotalValue(OrderData.TOTAL_VALUE);
-
-        mockToken = "Bearer " + AuthData.TOKEN;
-        when(jwtService.validateToken(AuthData.TOKEN)).thenReturn(AuthData.EMAIL);
-
-        mockUserDetails = User.withUsername(AuthData.EMAIL)
-                .password(AuthData.HASHED_PASSWORD)
-                .roles("USER")
-                .build();
-
-        when(userDetailsService.loadUserByUsername(AuthData.EMAIL)).thenReturn(mockUserDetails);
     }
 
     @Test

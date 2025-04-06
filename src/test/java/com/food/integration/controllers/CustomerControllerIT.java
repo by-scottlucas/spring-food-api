@@ -59,14 +59,6 @@ public class CustomerControllerIT {
 
     @BeforeEach
     void setUp() {
-        mockCustomer = new Customer();
-        mockCustomer.setId(CustomerData.ID);
-        mockCustomer.setName(CustomerData.NAME);
-        mockCustomer.setEmail(CustomerData.EMAIL);
-        mockCustomer.setPassword(CustomerData.PASSWORD);
-        mockCustomer.setAddress(CustomerData.ADDRESS);
-        mockCustomer.setActive(CustomerData.ACTIVE);
-
         mockToken = "Bearer " + AuthData.TOKEN;
         when(jwtService.validateToken(AuthData.TOKEN)).thenReturn(AuthData.EMAIL);
 
@@ -76,6 +68,14 @@ public class CustomerControllerIT {
                 .build();
 
         when(userDetailsService.loadUserByUsername(AuthData.EMAIL)).thenReturn(mockUserDetails);
+        
+        mockCustomer = new Customer();
+        mockCustomer.setId(CustomerData.ID);
+        mockCustomer.setName(CustomerData.NAME);
+        mockCustomer.setEmail(CustomerData.EMAIL);
+        mockCustomer.setPassword(CustomerData.PASSWORD);
+        mockCustomer.setAddress(CustomerData.ADDRESS);
+        mockCustomer.setActive(CustomerData.ACTIVE);
     }
 
     @Test
